@@ -12,7 +12,7 @@ import Time
 
 frequencies : List Int
 frequencies =
-    [ 1, 2, 4, 8, 16, 32, 40, 48, 60, 72, 80, 120, 250 ]
+    [ 1, 2, 4, 7, 8, 16, 18, 24, 32, 40, 48, 60, 72, 80, 120, 250 ]
 
 
 interval : Int -> Float
@@ -23,6 +23,11 @@ interval hz =
 intervals : List Float
 intervals =
     List.map interval frequencies
+
+
+mapWithIndex : (Int -> b) -> List a -> List b
+mapWithIndex f =
+    List.indexedMap (\i _ -> f i)
 
 
 
@@ -64,9 +69,7 @@ init _ =
     ( initialModel
     , Cmd.batch <|
         Task.perform AdjustTimeZone Time.here
-            :: (frequencies
-                    |> List.indexedMap (\i _ -> Task.perform (Tick i) Time.now)
-               )
+            :: mapWithIndex (\i -> Task.perform (Tick i) Time.now) frequencies
     )
 
 
@@ -113,7 +116,7 @@ view model =
     H.main_ [ HA.style "display" "flex", HA.style "flex-wrap" "wrap" ]
         (model.times
             |> Array.toList
-            |> List.indexedMap (\i _ -> renderClock i model)
+            |> mapWithIndex (\i -> renderClock i model)
         )
 
 
