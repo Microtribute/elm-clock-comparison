@@ -1,1 +1,2 @@
-# elm-clock-comparison
+# Clocks with sweeping second hands
+
