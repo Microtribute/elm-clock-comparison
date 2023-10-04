@@ -116,7 +116,7 @@ iwc =
 
 zenith : Svg msg
 zenith =
-    clockLogo ( 409, 152 ) 64 "/assets/images/zenith.svg"
+    clockLogo ( 409, 144 ) 60 "/assets/images/zenith.svg"
 
 
 vacheronConstantin : Svg msg
