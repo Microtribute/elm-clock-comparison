@@ -81,7 +81,7 @@ tissot =
 
 titoni : Svg msg
 titoni =
-    clockLogo ( 739, 441 ) 50 "/assets/images/titoni.png"
+    clockLogo ( 178, 106 ) 54 "/assets/images/Titoni_Switzerland_Logo.svg"
 
 
 rado : Svg msg
