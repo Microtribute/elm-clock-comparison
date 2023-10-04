@@ -235,7 +235,29 @@ clock logo frequency zone time =
             , width "200"
             , height "200"
             ]
-            [ circle [ cx "100", cy "100", r "99", fill "#fff", stroke "gray" ] []
+            [ Svg.node "defs"
+                []
+                [ Svg.node "radialGradient"
+                    [ Svg.Attributes.id "gradient"
+                    , Svg.Attributes.cx "50%"
+                    , Svg.Attributes.cy "50%"
+                    , Svg.Attributes.r "50%"
+                    , Svg.Attributes.fx "50%"
+                    , Svg.Attributes.fy "50%"
+                    ]
+                    [ Svg.node "stop"
+                        [ Svg.Attributes.offset "0%"
+                        , Svg.Attributes.style "stop-color:rgba(255, 255, 255, 0.15); stop-opacity:1"
+                        ]
+                        []
+                    , Svg.node "stop"
+                        [ Svg.Attributes.offset "100%"
+                        , Svg.Attributes.style "stop-color:rgba(255, 255, 255, 0.1); stop-opacity:0"
+                        ]
+                        []
+                    ]
+                ]
+            , circle [ cx "100", cy "100", r "99", fill "url(#gradient)", stroke "gray" ] []
             , g [] <| List.map drawMark <| steppedRange 0.25 0 60
             , logo
             , Svg.text_
