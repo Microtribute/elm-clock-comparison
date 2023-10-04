@@ -18,11 +18,6 @@ type alias ClockSetting msg =
     }
 
 
-frequencies : List Int
-frequencies =
-    [ 1, 2, 4, 7, 8, 16, 24, 32, 40, 48, 60, 72, 80, 120, 250 ]
-
-
 clockSettings : List (ClockSetting msg)
 clockSettings =
     [ ClockSetting (Just Logo.citizen) 1

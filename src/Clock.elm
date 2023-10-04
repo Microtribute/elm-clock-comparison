@@ -2,7 +2,6 @@ module Clock exposing (..)
 
 import Html as H exposing (Html)
 import Html.Attributes as HA
-import Logo
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Time
@@ -163,19 +162,19 @@ drawMark n =
                 Nothing
 
         ( thickness, length, strokeColor ) =
-            case integer n of
-                Just int ->
-                    if 0 == remainderBy 5 int then
-                        ( 1, 80, "darkred" )
+            integer n
+                |> Maybe.andThen
+                    (\int ->
+                        if 0 == remainderBy 5 int then
+                            Just ( 1, 80, "darkred" )
 
-                    else if 0 == remainderBy 1 int then
-                        ( 1, 90, "gray" )
+                        else if 0 == remainderBy 1 int then
+                            Just ( 1, 90, "gray" )
 
-                    else
-                        ( 1, 95, "gray" )
-
-                Nothing ->
-                    ( 1, 95, "gray" )
+                        else
+                            Nothing
+                    )
+                |> Maybe.withDefault ( 1, 95, "gray" )
 
         angle =
             pi * 2 * (n / 60)
