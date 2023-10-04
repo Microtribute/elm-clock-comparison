@@ -106,7 +106,7 @@ hublot =
 
 oris : Svg msg
 oris =
-    clockLogo ( 3126, 1701 ) 40 "/assets/images/oris.png"
+    clockLogo ( 3126, 1701 ) 48 "/assets/images/oris.png"
 
 
 iwc : Svg msg
