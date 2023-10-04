@@ -178,6 +178,11 @@ view model =
         (mapWithIndex (\i -> renderClock i model) clockSettings)
 
 
+defaultClockSetting : ClockSetting msg
+defaultClockSetting =
+    ClockSetting Logo.nothing 1
+
+
 renderClock : Int -> Model -> Html Msg
 renderClock index model =
     let
@@ -189,6 +194,6 @@ renderClock index model =
             clockSettings
                 |> Array.fromList
                 |> Array.get index
-                |> Maybe.withDefault (ClockSetting Logo.nothing 1)
+                |> Maybe.withDefault defaultClockSetting
     in
     clock logo frequency model.zone time isMoving (ToggleClock index)
