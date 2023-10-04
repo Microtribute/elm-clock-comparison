@@ -152,15 +152,6 @@ update msg model =
             ( setClockState model index (ClockState time moving), Cmd.none )
 
 
-
--- SUBSCRIPTIONS
--- subscriptions : Model -> Sub Msg
--- subscriptions _ =
---     intervals
---         |> List.indexedMap (\i t -> Time.every t (Tick i))
---         |> Sub.batch
-
-
 subscriptions : Model -> Sub Msg
 subscriptions model =
     intervals

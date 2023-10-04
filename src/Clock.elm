@@ -226,8 +226,7 @@ clock logo frequency zone time moving messenger =
             (dc - (toFloat (floor dh) * mHour + toFloat (floor dm) * mMin)) / mSec
     in
     H.section
-        [ HA.style "padding" "12px"
-        , HA.style "margin" "4px"
+        [ HA.style "padding" "10px"
         , HA.style "display" "flex"
         , HA.style "flex-direction" "column"
         ]
@@ -298,7 +297,7 @@ clock logo frequency zone time moving messenger =
             [ HA.style "display" "flex"
             , HA.style "flex-direction" "column"
             , HA.style "align-items" "center"
-            , HA.style "padding-top" "12px"
+            , HA.style "padding-top" "10px"
             ]
             [ H.a
                 [ onClick (messenger (not moving))
@@ -306,7 +305,9 @@ clock logo frequency zone time moving messenger =
                 , HA.style "font-family" "sans-serif"
                 , HA.style "cursor" "pointer"
                 ]
-                [ text <|
+                [ text
+                    << String.toUpper
+                  <|
                     if moving then
                         "Switch Off"
 
