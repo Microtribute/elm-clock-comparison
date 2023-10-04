@@ -13,6 +13,7 @@ module Logo exposing
     , omega
     , orient
     , oris
+    , patekPhilippe
     , piaget
     , rado
     , rolex
@@ -141,6 +142,11 @@ girardPerregaux =
 orient : Svg msg
 orient =
     clockLogo ( 158.85, 82.42 ) 40 "/assets/images/orient.svg"
+
+
+patekPhilippe : Svg msg
+patekPhilippe =
+    clockLogo ( 159.50522, 87.271477 ) 72 "/assets/images/Patek_Philippe_SA_logo.svg"
 
 
 clockLogo : ( Float, Float ) -> Float -> String -> Svg msg

@@ -38,6 +38,7 @@ clockSettings =
     , ClockSetting Logo.accutron 360
     , ClockSetting Logo.vacheronConstantin 480
     , ClockSetting Logo.girardPerregaux 500
+    , ClockSetting Logo.patekPhilippe 1000
     ]
 
 
