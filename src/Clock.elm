@@ -254,7 +254,7 @@ clock logo frequency zone time =
             -- , drawTriangularHandle 2 40 "#fff" (hour / 12)
             -- , drawTriangularHandle 2 60 "#efefef" (minute / 60)
             -- , drawTriangularHandle 1 85 "yellow" (second / 60)
-            , drawTrepozoidalHand ( 1.5, 3 ) 40 "gray" (dh / 12)
+            , drawTrepozoidalHand ( 1.5, 3 ) 40 "#357ca3" (dh / 12)
             , drawTrepozoidalHand ( 1, 3 ) 60 "gray" (dm / 60)
             , drawTrepozoidalHand ( 1, 2 ) 85 "#eb4351" (ds / 60)
             , circle [ cx "100", cy "100", r "4", fill "#eb4351" ] []
