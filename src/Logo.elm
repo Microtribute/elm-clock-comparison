@@ -76,12 +76,12 @@ logines =
 
 tissot : Svg msg
 tissot =
-    clockLogo ( 393.0, 143.77 ) 50 "/assets/images/tissot.svg"
+    clockLogo ( 393.0, 143.77 ) 54 "/assets/images/tissot.svg"
 
 
 titoni : Svg msg
 titoni =
-    clockLogo ( 739, 441 ) 40 "/assets/images/titoni.png"
+    clockLogo ( 739, 441 ) 50 "/assets/images/titoni.png"
 
 
 rado : Svg msg
@@ -101,7 +101,7 @@ omega =
 
 hublot : Svg msg
 hublot =
-    clockLogo ( 69.273984, 37.043056 ) 40 "/assets/images/hublot.svg"
+    clockLogo ( 69.273984, 37.043056 ) 50 "/assets/images/hublot.svg"
 
 
 oris : Svg msg
@@ -111,12 +111,12 @@ oris =
 
 iwc : Svg msg
 iwc =
-    clockLogo ( 133.18, 59.58 ) 50 "/assets/images/iwc.svg"
+    clockLogo ( 133.18, 59.58 ) 54 "/assets/images/iwc.svg"
 
 
 zenith : Svg msg
 zenith =
-    clockLogo ( 133.18, 59.58 ) 44 "/assets/images/zenith.svg"
+    clockLogo ( 133.18, 59.58 ) 50 "/assets/images/zenith.svg"
 
 
 vacheronConstantin : Svg msg
