@@ -206,29 +206,23 @@ clock logo frequency zone time =
         step =
             1000 / toFloat frequency
 
-        h =
-            toFloat (Time.toHour zone time)
-
-        m =
-            toFloat (Time.toMinute zone time)
-
-        s =
-            toFloat (Time.toSecond zone time)
+        { hour, minute, second } =
+            components zone time
 
         pmillis =
-            h * mHour + m * mMin + s * mSec
+            hour * mHour + minute * mMin + second * mSec
 
-        actualMillis =
+        dc =
             pmillis + toFloat (floor ((millis - pmillis) / step)) * step
 
-        hour =
-            actualMillis / mHour
+        dh =
+            dc / mHour
 
-        minute =
-            (actualMillis - toFloat (floor hour) * mHour) / mMin
+        dm =
+            (dc - toFloat (floor dh) * mHour) / mMin
 
-        second =
-            (actualMillis - (toFloat (floor hour) * mHour + toFloat (floor minute) * mMin)) / mSec
+        ds =
+            (dc - (toFloat (floor dh) * mHour + toFloat (floor dm) * mMin)) / mSec
     in
     H.section
         [ HA.style "padding" "12px"
@@ -260,27 +254,27 @@ clock logo frequency zone time =
             -- , drawTriangularHandle 2 40 "#fff" (hour / 12)
             -- , drawTriangularHandle 2 60 "#efefef" (minute / 60)
             -- , drawTriangularHandle 1 85 "yellow" (second / 60)
-            , drawTrepozoidalHand ( 1.5, 3 ) 40 "gray" (hour / 12)
-            , drawTrepozoidalHand ( 1, 3 ) 60 "gray" (minute / 60)
-            , drawTrepozoidalHand ( 1, 2 ) 85 "#eb4351" (second / 60)
+            , drawTrepozoidalHand ( 1.5, 3 ) 40 "gray" (dh / 12)
+            , drawTrepozoidalHand ( 1, 3 ) 60 "gray" (dm / 60)
+            , drawTrepozoidalHand ( 1, 2 ) 85 "#eb4351" (ds / 60)
             , circle [ cx "100", cy "100", r "4", fill "#eb4351" ] []
             ]
         ]
 
 
+components : Time.Zone -> Time.Posix -> { hour : Float, minute : Float, second : Float, milli : Float }
+components z t =
+    { hour = toFloat <| Time.toHour z t
+    , minute = toFloat <| Time.toMinute z t
+    , second = toFloat <| Time.toSecond z t
+    , milli = toFloat <| Time.toMillis z t
+    }
+
+
 toMillis : Time.Zone -> Time.Posix -> Float
 toMillis z t =
     let
-        hh =
-            toFloat <| Time.toHour z t
-
-        mm =
-            toFloat <| Time.toMinute z t
-
-        ss =
-            toFloat <| Time.toSecond z t
-
-        mi =
-            toFloat <| Time.toMillis z t
+        { hour, minute, second, milli } =
+            components z t
     in
-    hh * mHour + mm * mMin + ss * mSec + mi
+    hour * mHour + minute * mMin + second * mSec + milli
