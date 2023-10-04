@@ -166,16 +166,16 @@ drawMark n =
             case integer n of
                 Just int ->
                     if 0 == remainderBy 5 int then
-                        ( 1, 80, "red" )
+                        ( 1, 80, "darkred" )
 
                     else if 0 == remainderBy 1 int then
-                        ( 1, 90, "blue" )
+                        ( 1, 90, "gray" )
 
                     else
-                        ( 1, 95, "blue" )
+                        ( 1, 95, "gray" )
 
                 Nothing ->
-                    ( 1, 95, "blue" )
+                    ( 1, 95, "gray" )
 
         angle =
             pi * 2 * (n / 60)
@@ -237,9 +237,7 @@ clock logo frequency zone time =
             (actualMillis - (toFloat (floor hour) * mHour + toFloat (floor minute) * mMin)) / mSec
     in
     H.section
-        [ HA.style "border-radius" "20px"
-        , HA.style "background-color" "#1293D8"
-        , HA.style "padding" "24px 12px"
+        [ HA.style "padding" "12px"
         , HA.style "margin" "4px"
         , HA.style "display" "flex"
         , HA.style "flex-direction" "column"
@@ -249,9 +247,18 @@ clock logo frequency zone time =
             , width "200"
             , height "200"
             ]
-            [ circle [ cx "100", cy "100", r "99", fill "#fff", stroke "blue" ] []
+            [ circle [ cx "100", cy "100", r "99", fill "#fff", stroke "gray" ] []
             , g [] <| List.map drawMark <| steppedRange 0.25 0 60
             , Maybe.withDefault defaultLogo logo
+            , Svg.text_
+                [ x "100"
+                , y "150"
+                , fontSize "8"
+                , fontFamily "sans-serif"
+                , fill "gray"
+                , textAnchor "middle"
+                ]
+                [ Svg.text <| "- " ++ String.fromInt frequency ++ " bps -" ]
 
             -- , drawHand 4 40 "#fff" (hour / 12)
             -- , drawHand 4 60 "#efefef" (minute / 60)
@@ -259,20 +266,11 @@ clock logo frequency zone time =
             -- , drawTriangularHandle 2 40 "#fff" (hour / 12)
             -- , drawTriangularHandle 2 60 "#efefef" (minute / 60)
             -- , drawTriangularHandle 1 85 "yellow" (second / 60)
-            , drawTrepozoidalHand ( 1.5, 3 ) 40 "#000" (hour / 12)
-            , drawTrepozoidalHand ( 1.5, 3 ) 60 "#000" (minute / 60)
-            , drawTrepozoidalHand ( 1, 2 ) 85 "gray" (second / 60)
-            , circle [ cx "100", cy "100", r "4", fill "gray" ] []
+            , drawTrepozoidalHand ( 1.5, 3 ) 40 "gray" (hour / 12)
+            , drawTrepozoidalHand ( 1, 3 ) 60 "gray" (minute / 60)
+            , drawTrepozoidalHand ( 1, 2 ) 85 "#eb4351" (second / 60)
+            , circle [ cx "100", cy "100", r "4", fill "#eb4351" ] []
             ]
-        , H.aside
-            [ HA.style "font-size" "12px"
-            , HA.style "color" "white"
-            , HA.style "padding-top" "24px"
-            , HA.style "align-items" "center"
-            , HA.style "justify-content" "center"
-            , HA.style "display" "flex"
-            ]
-            [ "f = " ++ String.fromInt frequency ++ " bps" |> H.text ]
         ]
 
 
