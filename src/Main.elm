@@ -70,17 +70,28 @@ main =
 -- MODEL
 
 
+type alias ClockState =
+    { time : Time.Posix
+    , isMoving : Bool
+    }
+
+
 type alias Model =
     { zone : Time.Zone
-    , times : Array Time.Posix
+    , clockStates : Array ClockState
     }
+
+
+defaultClockState : ClockState
+defaultClockState =
+    ClockState (Time.millisToPosix 0) True
 
 
 initialModel : Model
 initialModel =
     { zone = Time.utc
-    , times =
-        Time.millisToPosix 0
+    , clockStates =
+        defaultClockState
             |> List.repeat (List.length clockSettings)
             |> Array.fromList
     }
@@ -102,13 +113,42 @@ init _ =
 type Msg
     = Tick Int Time.Posix
     | AdjustTimeZone Time.Zone
+    | ToggleClock Int Bool
+
+
+getClockState : Model -> Int -> ClockState
+getClockState model index =
+    Array.get index model.clockStates
+        |> Maybe.withDefault defaultClockState
+
+
+setClockState : Model -> Int -> ClockState -> Model
+setClockState model index newState =
+    { model | clockStates = Array.set index newState model.clockStates }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Tick index newTime ->
-            ( { model | times = Array.set index newTime model.times }
+            let
+                { isMoving, time } =
+                    getClockState model index
+            in
+            ( { model
+                | clockStates =
+                    Array.set index
+                        (ClockState
+                            (if isMoving then
+                                newTime
+
+                             else
+                                time
+                            )
+                            isMoving
+                        )
+                        model.clockStates
+              }
             , Cmd.none
             )
 
@@ -116,6 +156,13 @@ update msg model =
             ( { model | zone = newZone }
             , Cmd.none
             )
+
+        ToggleClock index moving ->
+            let
+                { time } =
+                    getClockState model index
+            in
+            ( setClockState model index (ClockState time moving), Cmd.none )
 
 
 
@@ -136,18 +183,15 @@ subscriptions _ =
 view : Model -> Html Msg
 view model =
     H.main_ [ HA.style "display" "flex", HA.style "user-select" "none", HA.style "flex-wrap" "wrap" ]
-        (model.times
-            |> Array.toList
-            |> mapWithIndex (\i -> renderClock i model)
-        )
+        (mapWithIndex (\i -> renderClock i model) clockSettings)
 
 
 renderClock : Int -> Model -> Html Msg
 renderClock index model =
     let
-        time =
-            Array.get index model.times
-                |> Maybe.withDefault (Time.millisToPosix 0)
+        { time, isMoving } =
+            Array.get index model.clockStates
+                |> Maybe.withDefault defaultClockState
 
         { logo, frequency } =
             clockSettings
@@ -155,4 +199,4 @@ renderClock index model =
                 |> Array.get index
                 |> Maybe.withDefault (ClockSetting Logo.nothing 1)
     in
-    clock logo frequency model.zone time
+    clock logo frequency model.zone time isMoving (ToggleClock index)

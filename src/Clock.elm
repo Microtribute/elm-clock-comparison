@@ -2,6 +2,7 @@ module Clock exposing (clock)
 
 import Html as H exposing (Html)
 import Html.Attributes as HA
+import Html.Events exposing (onClick)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Time
@@ -197,8 +198,8 @@ drawMark n =
         []
 
 
-clock : Svg msg -> Int -> Time.Zone -> Time.Posix -> Html msg
-clock logo frequency zone time =
+clock : Svg msg -> Int -> Time.Zone -> Time.Posix -> Bool -> (Bool -> msg) -> Html msg
+clock logo frequency zone time moving messenger =
     let
         millis =
             toMillis zone time
@@ -257,7 +258,19 @@ clock logo frequency zone time =
                         []
                     ]
                 ]
-            , circle [ cx "100", cy "100", r "99", fill "url(#gradient)", stroke "gray" ] []
+            , circle
+                [ cx "100"
+                , cy "100"
+                , r "99"
+                , fill <|
+                    if moving then
+                        "white"
+
+                    else
+                        "lightgray"
+                , stroke "gray"
+                ]
+                []
             , g [] <| List.map drawMark <| steppedRange 0.25 0 60
             , logo
             , Svg.text_
@@ -280,6 +293,26 @@ clock logo frequency zone time =
             , drawTrepozoidalHand ( 1, 3 ) 60 "gray" (dm / 60)
             , drawTrepozoidalHand ( 1, 2 ) 85 "#eb4351" (ds / 60)
             , circle [ cx "100", cy "100", r "4", fill "#eb4351" ] []
+            ]
+        , H.aside
+            [ HA.style "display" "flex"
+            , HA.style "flex-direction" "column"
+            , HA.style "align-items" "center"
+            , HA.style "padding-top" "12px"
+            ]
+            [ H.a
+                [ onClick (messenger (not moving))
+                , HA.style "font-size" "8px"
+                , HA.style "font-family" "sans-serif"
+                , HA.style "cursor" "pointer"
+                ]
+                [ text <|
+                    if moving then
+                        "Switch Off"
+
+                    else
+                        "Switch On"
+                ]
             ]
         ]
 
