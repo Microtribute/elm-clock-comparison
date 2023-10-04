@@ -10,14 +10,9 @@ import Task
 import Time
 
 
-pi : Float
-pi =
-    3.141592653589793
-
-
 frequencies : List Int
 frequencies =
-    [ 1, 2, 4, 7, 8, 16, 18, 24, 32, 40, 48, 60, 72, 80, 120, 250 ]
+    [ 1, 2, 4, 7, 8, 16, 24, 32, 40, 48, 60, 72, 80, 120, 250 ]
 
 
 interval : Int -> Float
@@ -33,6 +28,15 @@ intervals =
 mapWithIndex : (Int -> b) -> List a -> List b
 mapWithIndex f =
     List.indexedMap (\i _ -> f i)
+
+
+steppedRange : Float -> Float -> Float -> List Float
+steppedRange step lower upper =
+    if lower >= upper then
+        []
+
+    else
+        lower :: steppedRange step (lower + step) upper
 
 
 
@@ -138,19 +142,46 @@ renderClock index model =
                 |> Array.get index
                 |> Maybe.withDefault 0
 
+        mSec =
+            toFloat 1000
+
+        mMin =
+            toFloat 60000
+
+        mHour =
+            toFloat 3600000
+
         millis =
             toMillis model.zone time |> toFloat
 
-        hour =
-            -- toFloat (Time.toHour model.zone model.time)
-            millis / 3600000
+        step =
+            interval frequency
 
-        -- millis / 3600 * 1000
+        h =
+            toFloat (Time.toHour model.zone time)
+
+        m =
+            toFloat (Time.toMinute model.zone time)
+
+        s =
+            toFloat (Time.toSecond model.zone time)
+
+        pmillis =
+            h * mHour + m * mMin + s * mSec
+
+        actualMillis =
+            pmillis + toFloat (floor ((millis - pmillis) / step)) * step
+
+        -- _ =
+        --     Debug.log "aaa" <| String.fromFloat pmillis ++ ", " ++ String.fromFloat millis ++ ", " ++ String.fromFloat actualMillis
+        hour =
+            actualMillis / mHour
+
         minute =
-            (millis - toFloat (floor hour) * 3600000) / 60000
+            (actualMillis - toFloat (floor hour) * mHour) / mMin
 
         second =
-            (millis - (toFloat (floor hour) * 3600000 + toFloat (floor minute) * 60000)) / 1000
+            (actualMillis - (toFloat (floor hour) * mHour + toFloat (floor minute) * mMin)) / mSec
 
         drawHand : Int -> Float -> String -> Float -> Svg msg
         drawHand width length color turns =
@@ -175,17 +206,38 @@ renderClock index model =
                 ]
                 []
 
+        drawMark : Float -> Html Msg
         drawMark n =
             let
-                ( thickness, length ) =
-                    if remainderBy 5 n == 0 then
-                        ( 1, 75 )
+                integer : Float -> Maybe Int
+                integer f =
+                    let
+                        ff =
+                            floor f
+                    in
+                    if f == toFloat ff then
+                        Just ff
 
                     else
-                        ( 1, 90 )
+                        Nothing
+
+                ( thickness, length, strokeColor ) =
+                    case integer n of
+                        Just int ->
+                            if 0 == remainderBy 5 int then
+                                ( 1, 80, "red" )
+
+                            else if 0 == remainderBy 1 int then
+                                ( 1, 90, "blue" )
+
+                            else
+                                ( 1, 95, "blue" )
+
+                        Nothing ->
+                            ( 1, 95, "blue" )
 
                 angle =
-                    pi * 2 * (toFloat n / 60)
+                    pi * 2 * (n / 60)
 
                 xStart =
                     100 + length * cos angle
@@ -199,7 +251,15 @@ renderClock index model =
                 yEnd =
                     100 + 98 * sin angle
             in
-            line [ strokeWidth <| String.fromInt thickness, x1 <| String.fromFloat xStart, y1 <| String.fromFloat yStart, x2 <| String.fromFloat xEnd, y2 <| String.fromFloat yEnd, stroke "#fff" ] []
+            line
+                [ strokeWidth <| String.fromFloat thickness
+                , x1 <| String.fromFloat xStart
+                , y1 <| String.fromFloat yStart
+                , x2 <| String.fromFloat xEnd
+                , y2 <| String.fromFloat yEnd
+                , stroke strokeColor
+                ]
+                []
     in
     H.section
         [ HA.style "border-radius" "20px"
@@ -214,11 +274,14 @@ renderClock index model =
             , width "200"
             , height "200"
             ]
-            [ circle [ cx "100", cy "100", r "100", fill "#52a9d8" ] []
-            , g [] <| List.map drawMark <| List.range 0 59
-            , drawHand 6 40 "#fff" (hour / 12)
-            , drawHand 6 60 "#efefef" (minute / 60)
-            , drawHand 4 80 "yellow" (second / 60)
+            [ circle [ cx "100", cy "100", r "99", fill "#52a9d8", stroke "blue" ] []
+            , Svg.text_ [ x "100", y "60", fontSize "14", fontFamily "sans-serif", fill "white", textAnchor "middle" ] [ Svg.text "CITIZEN" ]
+            , Svg.text_ [ x "100", y "70", fontSize "6", fontFamily "sans-serif", fill "lightgray", textAnchor "middle" ] [ Svg.text "RADIO-CONTROLLED" ]
+            , g [] <| List.map drawMark <| steppedRange 0.25 0 60
+            , drawHand 4 40 "#fff" (hour / 12)
+            , drawHand 4 60 "#efefef" (minute / 60)
+            , drawHand 2 85 "yellow" (second / 60)
+            , circle [ cx "100", cy "100", r "4", fill "gray" ] []
             ]
         , H.aside
             [ HA.style "font-size" "12px"
