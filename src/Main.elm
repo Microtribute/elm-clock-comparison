@@ -132,23 +132,10 @@ update msg model =
     case msg of
         Tick index newTime ->
             let
-                { isMoving, time } =
+                { isMoving } =
                     getClockState model index
             in
-            ( { model
-                | clockStates =
-                    Array.set index
-                        (ClockState
-                            (if isMoving then
-                                newTime
-
-                             else
-                                time
-                            )
-                            isMoving
-                        )
-                        model.clockStates
-              }
+            ( setClockState model index (ClockState newTime isMoving)
             , Cmd.none
             )
 
@@ -167,12 +154,26 @@ update msg model =
 
 
 -- SUBSCRIPTIONS
+-- subscriptions : Model -> Sub Msg
+-- subscriptions _ =
+--     intervals
+--         |> List.indexedMap (\i t -> Time.every t (Tick i))
+--         |> Sub.batch
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
+subscriptions model =
     intervals
-        |> List.indexedMap (\i t -> Time.every t (Tick i))
+        |> List.indexedMap (\i t -> ( i, t ))
+        |> List.filter
+            (\( i, _ ) ->
+                let
+                    { isMoving } =
+                        getClockState model i
+                in
+                isMoving
+            )
+        |> List.map (\( i, t ) -> Time.every t (Tick i))
         |> Sub.batch
 
 
