@@ -1,4 +1,4 @@
-module Main exposing (Model, Msg(..), init, main, subscriptions, update, view, viewHand)
+module Main exposing (main)
 
 import Array exposing (Array)
 import Browser
@@ -8,6 +8,11 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Task
 import Time
+
+
+pi : Float
+pi =
+    3.141592653589793
 
 
 frequencies : List Int
@@ -146,6 +151,55 @@ renderClock index model =
 
         second =
             (millis - (toFloat (floor hour) * 3600000 + toFloat (floor minute) * 60000)) / 1000
+
+        drawHand : Int -> Float -> String -> Float -> Svg msg
+        drawHand width length color turns =
+            let
+                t =
+                    2 * pi * (turns - 0.25)
+
+                x =
+                    100 + length * cos t
+
+                y =
+                    100 + length * sin t
+            in
+            line
+                [ x1 "100"
+                , y1 "100"
+                , x2 (String.fromFloat x)
+                , y2 (String.fromFloat y)
+                , stroke color
+                , strokeWidth (String.fromInt width)
+                , strokeLinecap "round"
+                ]
+                []
+
+        drawMark n =
+            let
+                ( thickness, length ) =
+                    if remainderBy 5 n == 0 then
+                        ( 1, 75 )
+
+                    else
+                        ( 1, 90 )
+
+                angle =
+                    pi * 2 * (toFloat n / 60)
+
+                xStart =
+                    100 + length * cos angle
+
+                yStart =
+                    100 + length * sin angle
+
+                xEnd =
+                    100 + 98 * cos angle
+
+                yEnd =
+                    100 + 98 * sin angle
+            in
+            line [ strokeWidth <| String.fromInt thickness, x1 <| String.fromFloat xStart, y1 <| String.fromFloat yStart, x2 <| String.fromFloat xEnd, y2 <| String.fromFloat yEnd, stroke "#fff" ] []
     in
     H.section
         [ HA.style "border-radius" "20px"
@@ -161,9 +215,10 @@ renderClock index model =
             , height "200"
             ]
             [ circle [ cx "100", cy "100", r "100", fill "#52a9d8" ] []
-            , viewHand 6 40 "#fff" (hour / 12)
-            , viewHand 6 60 "#efefef" (minute / 60)
-            , viewHand 4 80 "yellow" (second / 60)
+            , g [] <| List.map drawMark <| List.range 0 59
+            , drawHand 6 40 "#fff" (hour / 12)
+            , drawHand 6 60 "#efefef" (minute / 60)
+            , drawHand 4 80 "yellow" (second / 60)
             ]
         , H.aside
             [ HA.style "font-size" "12px"
@@ -193,27 +248,3 @@ toMillis z t =
             Time.toMillis z t
     in
     hh * 3600000 + mm * 60000 + ss * 1000 + mi
-
-
-viewHand : Int -> Float -> String -> Float -> Svg msg
-viewHand width length color turns =
-    let
-        t =
-            2 * pi * (turns - 0.25)
-
-        x =
-            100 + length * cos t
-
-        y =
-            100 + length * sin t
-    in
-    line
-        [ x1 "100"
-        , y1 "100"
-        , x2 (String.fromFloat x)
-        , y2 (String.fromFloat y)
-        , stroke color
-        , strokeWidth (String.fromInt width)
-        , strokeLinecap "round"
-        ]
-        []
