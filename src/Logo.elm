@@ -1,5 +1,6 @@
 module Logo exposing
-    ( breitling
+    ( accutron
+    , breitling
     , bulova
     , citizen
     , eterna
@@ -54,7 +55,12 @@ breitling =
 
 bulova : Svg msg
 bulova =
-    clockLogo ( 210, 40 ) 50 "/assets/images/bulova.svg"
+    clockLogo ( 451, 205 ) 50 "/assets/images/bulova.svg"
+
+
+accutron : Svg msg
+accutron =
+    clockLogo ( 940.02, 142.61 ) 64 "/assets/images/accutron.svg"
 
 
 eterna : Svg msg
