@@ -13,29 +13,29 @@ import Time
 
 
 type alias ClockSetting msg =
-    { logo : Maybe (Svg msg)
+    { logo : Svg msg
     , frequency : Int
     }
 
 
 clockSettings : List (ClockSetting msg)
 clockSettings =
-    [ ClockSetting (Just Logo.citizen) 1
-    , ClockSetting (Just Logo.zenith) 2
-    , ClockSetting (Just Logo.tissot) 4
-    , ClockSetting (Just Logo.omega) 7
-    , ClockSetting (Just Logo.seiko) 8
-    , ClockSetting (Just Logo.bulova) 16
-    , ClockSetting (Just Logo.breitling) 24
-    , ClockSetting (Just Logo.titoni) 32
-    , ClockSetting (Just Logo.hublot) 40
-    , ClockSetting (Just Logo.iwc) 48
-    , ClockSetting (Just Logo.orient) 60
-    , ClockSetting (Just Logo.oris) 72
-    , ClockSetting (Just Logo.frederiqueConstant) 80
-    , ClockSetting (Just Logo.rado) 120
-    , ClockSetting (Just Logo.rolex) 250
-    , ClockSetting (Just Logo.vacheronConstantin) 500
+    [ ClockSetting Logo.citizen 1
+    , ClockSetting Logo.zenith 2
+    , ClockSetting Logo.tissot 4
+    , ClockSetting Logo.omega 7
+    , ClockSetting Logo.seiko 8
+    , ClockSetting Logo.bulova 16
+    , ClockSetting Logo.breitling 24
+    , ClockSetting Logo.titoni 32
+    , ClockSetting Logo.hublot 40
+    , ClockSetting Logo.iwc 48
+    , ClockSetting Logo.orient 60
+    , ClockSetting Logo.oris 72
+    , ClockSetting Logo.frederiqueConstant 80
+    , ClockSetting Logo.rado 120
+    , ClockSetting Logo.rolex 250
+    , ClockSetting Logo.vacheronConstantin 500
     ]
 
 
@@ -150,6 +150,6 @@ renderClock index model =
             clockSettings
                 |> Array.fromList
                 |> Array.get index
-                |> Maybe.withDefault (ClockSetting Nothing 1)
+                |> Maybe.withDefault (ClockSetting Logo.nothing 1)
     in
     clock logo frequency model.zone time

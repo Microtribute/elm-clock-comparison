@@ -133,11 +133,6 @@ drawHand width length color turns =
         []
 
 
-defaultLogo : Svg msg
-defaultLogo =
-    Svg.text ""
-
-
 clockLogoText : Svg msg
 clockLogoText =
     g []
@@ -202,7 +197,7 @@ drawMark n =
         []
 
 
-clock : Maybe (Svg msg) -> Int -> Time.Zone -> Time.Posix -> Html msg
+clock : Svg msg -> Int -> Time.Zone -> Time.Posix -> Html msg
 clock logo frequency zone time =
     let
         millis =
@@ -248,7 +243,7 @@ clock logo frequency zone time =
             ]
             [ circle [ cx "100", cy "100", r "99", fill "#fff", stroke "gray" ] []
             , g [] <| List.map drawMark <| steppedRange 0.25 0 60
-            , Maybe.withDefault defaultLogo logo
+            , logo
             , Svg.text_
                 [ x "100"
                 , y "150"

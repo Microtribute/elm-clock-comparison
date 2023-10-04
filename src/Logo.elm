@@ -8,6 +8,7 @@ module Logo exposing
     , hublot
     , iwc
     , logines
+    , nothing
     , omega
     , orient
     , oris
@@ -24,6 +25,11 @@ module Logo exposing
 
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
+
+
+nothing : Svg msg
+nothing =
+    Svg.text ""
 
 
 citizen : Svg msg
