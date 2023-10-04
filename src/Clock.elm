@@ -1,4 +1,4 @@
-module Clock exposing (..)
+module Clock exposing (clock)
 
 import Html as H exposing (Html)
 import Html.Attributes as HA
