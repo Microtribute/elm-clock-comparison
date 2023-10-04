@@ -280,7 +280,7 @@ clock logo frequency zone time moving messenger =
                 , fill "gray"
                 , textAnchor "middle"
                 ]
-                [ Svg.text <| "- " ++ String.fromInt frequency ++ " bps -" ]
+                [ Svg.text <| "【" ++ String.fromInt frequency ++ "】" ]
 
             -- , drawHand 4 40 "#fff" (hour / 12)
             -- , drawHand 4 60 "#efefef" (minute / 60)
