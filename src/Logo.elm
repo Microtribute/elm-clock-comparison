@@ -96,7 +96,7 @@ piaget =
 
 omega : Svg msg
 omega =
-    clockLogo ( 254, 135 ) 40 "/assets/images/omega.svg"
+    clockLogo ( 254, 135 ) 50 "/assets/images/omega.svg"
 
 
 hublot : Svg msg
