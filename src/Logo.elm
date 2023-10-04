@@ -46,7 +46,7 @@ seiko =
 
 rolex : Svg msg
 rolex =
-    clockLogo ( 743.5, 371.75 ) 50 "/assets/images/rolex.svg"
+    clockLogo ( 373, 207 ) 42 "/assets/images/rolex.svg"
 
 
 breitling : Svg msg
