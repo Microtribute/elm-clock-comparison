@@ -42,11 +42,6 @@ clockSettings =
     ]
 
 
-intervals : List Float
-intervals =
-    List.map (.frequency >> toFloat >> (/) 1000) clockSettings
-
-
 mapWithIndex : (Int -> b) -> List a -> List b
 mapWithIndex f =
     List.indexedMap (\i _ -> f i)
@@ -154,7 +149,8 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    intervals
+    clockSettings
+        |> List.map (.frequency >> toFloat >> (/) 1000)
         |> List.indexedMap (\i t -> ( i, t ))
         |> List.filter
             (\( i, _ ) ->
