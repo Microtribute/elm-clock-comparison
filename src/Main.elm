@@ -161,17 +161,17 @@ adjustTime index =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Tick index newTime ->
+        Tick index time ->
             let
                 clockState =
                     getClockState model index
             in
-            ( setClockState model index { clockState | time = newTime }
+            ( setClockState model index { clockState | time = time }
             , Cmd.none
             )
 
-        AdjustTimeZone newZone ->
-            ( { model | zone = newZone }
+        AdjustTimeZone zone ->
+            ( { model | zone = zone }
             , Cmd.none
             )
 
