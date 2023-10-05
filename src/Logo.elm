@@ -86,7 +86,7 @@ titoni =
 
 rado : Svg msg
 rado =
-    clockLogo ( 1024, 324 ) 40 "/assets/images/rado.svg"
+    clockLogo ( 1024, 324 ) 54 "/assets/images/rado.svg"
 
 
 piaget : Svg msg
@@ -131,7 +131,7 @@ union =
 
 frederiqueConstant : Svg msg
 frederiqueConstant =
-    clockLogo ( 5000, 1848 ) 80 "/assets/images/frederique-constant.png"
+    clockLogo ( 466.22, 171.79 ) 96 "/assets/images/frederique-constant.svg"
 
 
 girardPerregaux : Svg msg
