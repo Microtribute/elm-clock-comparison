@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Array exposing (Array)
+import Array.Extra as Array
 import Browser
 import Clock exposing (clock)
 import Html as H exposing (Html)
@@ -122,6 +123,7 @@ type Msg
     | InputFrequency String
     | ChooseLogo String
     | AddClock
+    | DeleteClock Int
 
 
 getClockState : Model -> Int -> ClockState
@@ -194,6 +196,9 @@ update msg model =
             , adjustTime (Array.length model.clockStates)
             )
 
+        DeleteClock index ->
+            ( { model | clockStates = Array.removeAt index model.clockStates }, Cmd.none )
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -254,13 +259,13 @@ renderClocks model =
         |> Array.toList
         |> List.indexedMap
             (\i state ->
-                renderClock state model.zone (ToggleClock i)
+                renderClock state model.zone { switcher = ToggleClock i, remover = DeleteClock i }
             )
         |> H.section [ HA.style "display" "flex", HA.style "user-select" "none", HA.style "flex-wrap" "wrap" ]
 
 
-renderClock : ClockState -> Time.Zone -> (Bool -> Msg) -> Html Msg
-renderClock { time, isMoving, setting } zone switcher =
+renderClock : ClockState -> Time.Zone -> { switcher : Bool -> Msg, remover : Msg } -> Html Msg
+renderClock { time, isMoving, setting } zone { switcher, remover } =
     let
         { logo, frequency } =
             setting
@@ -273,24 +278,29 @@ renderClock { time, isMoving, setting } zone switcher =
         [ clock logo frequency zone time isMoving
         , H.aside
             [ HA.style "display" "flex"
-            , HA.style "flex-direction" "column"
-            , HA.style "align-items" "center"
-            , HA.style "padding-top" "10px"
+            , HA.style "flex-direction" "row"
+            , HA.style "justify-content" "space-between"
+            , HA.style "padding" "10px 10px 0"
+            , HA.style "font-size" "8px"
+            , HA.style "font-family" "sans-serif"
+            , HA.style "text-transform" "uppercase"
             ]
             [ H.a
                 [ onClick << switcher <| not isMoving
-                , HA.style "font-size" "8px"
-                , HA.style "font-family" "sans-serif"
                 , HA.style "cursor" "pointer"
                 ]
-                [ text
-                    << String.toUpper
-                  <|
+                [ text <|
                     if isMoving then
-                        "Switch Off"
+                        "Pause"
 
                     else
-                        "Switch On"
+                        "Resume"
                 ]
+            , H.a
+                [ onClick remover
+                , HA.style "cursor" "pointer"
+                , HA.style "color" "red"
+                ]
+                [ text "Delete" ]
             ]
         ]
