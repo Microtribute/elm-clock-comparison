@@ -137,17 +137,6 @@ type Msg
     | SaveClock Int
 
 
-getClockState : Model -> Int -> ClockState
-getClockState model index =
-    Array.get index model.clockStates
-        |> Maybe.withDefault defaultClockState
-
-
-setClockState : Model -> Int -> ClockState -> Model
-setClockState model index newState =
-    { model | clockStates = Array.set index newState model.clockStates }
-
-
 fixFrequency : String -> Int
 fixFrequency input =
     let
@@ -170,42 +159,42 @@ adjustTime index =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg ({ clockStates, form } as model) =
+    let
+        getClockState : Int -> ClockState
+        getClockState index =
+            Array.get index clockStates
+                |> Maybe.withDefault defaultClockState
+
+        setClockState : Int -> ClockState -> Array ClockState
+        setClockState index newState =
+            Array.set index newState clockStates
+    in
     case msg of
-        Tick index time ->
+        Tick index newTime ->
             let
                 clockState =
-                    getClockState model index
+                    getClockState index
             in
-            ( setClockState model index { clockState | time = time }
+            ( { model | clockStates = setClockState index { clockState | time = newTime } }
             , Cmd.none
             )
 
-        AdjustTimeZone zone ->
-            ( { model | zone = zone }
-            , Cmd.none
-            )
+        AdjustTimeZone newZone ->
+            ( { model | zone = newZone }, Cmd.none )
 
         ToggleClock index moving ->
             let
                 clockState =
-                    getClockState model index
+                    getClockState index
             in
-            ( setClockState model index { clockState | isMoving = moving }, Cmd.none )
+            ( { model | clockStates = setClockState index { clockState | isMoving = moving } }, Cmd.none )
 
         InputFrequency freq ->
-            let
-                formData =
-                    model.form
-            in
-            ( { model | form = { formData | setting = ClockSetting model.form.setting.logo (fixFrequency freq) } }, Cmd.none )
+            ( { model | form = { form | setting = ClockSetting model.form.setting.logo (fixFrequency freq) } }, Cmd.none )
 
         ChooseLogo key ->
-            let
-                formData =
-                    model.form
-            in
-            ( { model | form = { formData | setting = ClockSetting (Logos.get key) model.form.setting.frequency } }, Cmd.none )
+            ( { model | form = { form | setting = ClockSetting (Logos.get key) model.form.setting.frequency } }, Cmd.none )
 
         AddClock ->
             ( { model
@@ -221,7 +210,7 @@ update msg model =
         EditClock index ->
             let
                 { setting } =
-                    getClockState model index
+                    getClockState index
             in
             ( { model | form = ClockForm setting <| Just index }, Cmd.none )
 
