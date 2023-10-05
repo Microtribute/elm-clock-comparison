@@ -8,7 +8,7 @@ module Logo exposing
     , girardPerregaux
     , hublot
     , iwc
-    , logines
+    , longines
     , nothing
     , omega
     , orient
@@ -69,9 +69,9 @@ eterna =
     clockLogo ( 252.00002, 140.89999 ) 50 "/assets/images/eterna.svg"
 
 
-logines : Svg msg
-logines =
-    clockLogo ( 5000, 1241 ) 72 "/assets/images/logines.png"
+longines : Svg msg
+longines =
+    clockLogo ( 119, 30 ) 60 "/assets/images/longines.svg"
 
 
 tissot : Svg msg
@@ -106,7 +106,7 @@ hublot =
 
 oris : Svg msg
 oris =
-    clockLogo ( 3126, 1701 ) 48 "/assets/images/oris.png"
+    clockLogo ( 856.65332, 340.16 ) 48 "/assets/images/oris.svg"
 
 
 iwc : Svg msg

@@ -35,7 +35,7 @@ clockSettings =
     , ClockSetting Logo.frederiqueConstant 80
     , ClockSetting Logo.rado 120
     , ClockSetting Logo.rolex 256
-    , ClockSetting Logo.accutron 360
+    , ClockSetting Logo.longines 360
     , ClockSetting Logo.vacheronConstantin 480
     , ClockSetting Logo.girardPerregaux 500
     , ClockSetting Logo.patekPhilippe 1000
