@@ -1,5 +1,6 @@
 module Logo exposing
-    ( accutron
+    ( Logo
+    , accutron
     , breitling
     , bulova
     , citizen
@@ -29,151 +30,129 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 
 
-nothing : Svg msg
+type alias Logo =
+    { aspect : ( Float, Float )
+    , width : Float
+    , url : String
+    , name : String
+    }
+
+
+nothing : Logo
 nothing =
-    Svg.text ""
+    Logo ( 0, 0 ) 0 "" ""
 
 
-citizen : Svg msg
+citizen : Logo
 citizen =
-    clockLogo ( 300.00001, 56.390969 ) 50 "/assets/images/citizen.svg"
+    Logo ( 300.00001, 56.390969 ) 50 "/assets/images/citizen.svg" "Citizen"
 
 
-seiko : Svg msg
+seiko : Logo
 seiko =
-    clockLogo ( 500, 98.4 ) 48 "/assets/images/seiko.svg"
+    Logo ( 500, 98.4 ) 48 "/assets/images/seiko.svg" "Seiko"
 
 
-rolex : Svg msg
+rolex : Logo
 rolex =
-    clockLogo ( 373, 207 ) 42 "/assets/images/rolex.svg"
+    Logo ( 373, 207 ) 42 "/assets/images/rolex.svg" "Rolex"
 
 
-breitling : Svg msg
+breitling : Logo
 breitling =
-    clockLogo ( 1454, 674 ) 60 "/assets/images/breitling.png"
+    Logo ( 1454, 674 ) 60 "/assets/images/breitling.png" "Breitling"
 
 
-bulova : Svg msg
+bulova : Logo
 bulova =
-    clockLogo ( 451, 205 ) 50 "/assets/images/bulova.svg"
+    Logo ( 451, 205 ) 50 "/assets/images/bulova.svg" "Bulova"
 
 
-accutron : Svg msg
+accutron : Logo
 accutron =
-    clockLogo ( 940.02, 142.61 ) 64 "/assets/images/accutron.svg"
+    Logo ( 940.02, 142.61 ) 64 "/assets/images/accutron.svg" "Accutron"
 
 
-eterna : Svg msg
+eterna : Logo
 eterna =
-    clockLogo ( 252.00002, 140.89999 ) 50 "/assets/images/eterna.svg"
+    Logo ( 252.00002, 140.89999 ) 50 "/assets/images/eterna.svg" "Eterna"
 
 
-longines : Svg msg
+longines : Logo
 longines =
-    clockLogo ( 119, 30 ) 60 "/assets/images/longines.svg"
+    Logo ( 119, 30 ) 60 "/assets/images/longines.svg" "Longines"
 
 
-tissot : Svg msg
+tissot : Logo
 tissot =
-    clockLogo ( 393.0, 143.77 ) 54 "/assets/images/tissot.svg"
+    Logo ( 393.0, 143.77 ) 54 "/assets/images/tissot.svg" "Tissot"
 
 
-titoni : Svg msg
+titoni : Logo
 titoni =
-    clockLogo ( 178, 106 ) 54 "/assets/images/Titoni_Switzerland_Logo.svg"
+    Logo ( 178, 106 ) 54 "/assets/images/Titoni_Switzerland_Logo.svg" "Titoni"
 
 
-rado : Svg msg
+rado : Logo
 rado =
-    clockLogo ( 1024, 324 ) 54 "/assets/images/rado.svg"
+    Logo ( 1024, 324 ) 54 "/assets/images/rado.svg" "Rado"
 
 
-piaget : Svg msg
+piaget : Logo
 piaget =
-    clockLogo ( 1024, 414 ) 40 "/assets/images/piaget.svg"
+    Logo ( 1024, 414 ) 40 "/assets/images/piaget.svg" "Piaget"
 
 
-omega : Svg msg
+omega : Logo
 omega =
-    clockLogo ( 254, 135 ) 50 "/assets/images/omega.svg"
+    Logo ( 254, 135 ) 50 "/assets/images/omega.svg" "Omega"
 
 
-hublot : Svg msg
+hublot : Logo
 hublot =
-    clockLogo ( 69.273984, 37.043056 ) 50 "/assets/images/hublot.svg"
+    Logo ( 69.273984, 37.043056 ) 50 "/assets/images/hublot.svg" "Hublot"
 
 
-oris : Svg msg
+oris : Logo
 oris =
-    clockLogo ( 856.65332, 340.16 ) 48 "/assets/images/oris.svg"
+    Logo ( 856.65332, 340.16 ) 48 "/assets/images/oris.svg" "Oris"
 
 
-iwc : Svg msg
+iwc : Logo
 iwc =
-    clockLogo ( 133.18, 59.58 ) 54 "/assets/images/iwc.svg"
+    Logo ( 133.18, 59.58 ) 54 "/assets/images/iwc.svg" "IWC"
 
 
-zenith : Svg msg
+zenith : Logo
 zenith =
-    clockLogo ( 409, 144 ) 60 "/assets/images/zenith.svg"
+    Logo ( 409, 144 ) 60 "/assets/images/zenith.svg" "Zenith"
 
 
-vacheronConstantin : Svg msg
+vacheronConstantin : Logo
 vacheronConstantin =
-    clockLogo ( 900, 233 ) 90 "/assets/images/vacheron.svg"
+    Logo ( 900, 233 ) 90 "/assets/images/vacheron.svg" "Vacheron Constantin"
 
 
-union : Svg msg
+union : Logo
 union =
-    clockLogo ( 1024, 356 ) 40 "/assets/images/union.svg"
+    Logo ( 1024, 356 ) 60 "/assets/images/union.svg" "Union"
 
 
-frederiqueConstant : Svg msg
+frederiqueConstant : Logo
 frederiqueConstant =
-    clockLogo ( 466.22, 171.79 ) 96 "/assets/images/frederique-constant.svg"
+    Logo ( 466.22, 171.79 ) 96 "/assets/images/frederique-constant.svg" "Frederique Constant"
 
 
-girardPerregaux : Svg msg
+girardPerregaux : Logo
 girardPerregaux =
-    clockLogo ( 2000, 455 ) 80 "/assets/images/girard-perregaux.png"
+    Logo ( 2000, 455 ) 80 "/assets/images/girard-perregaux.png" "Girard Perregaux"
 
 
-orient : Svg msg
+orient : Logo
 orient =
-    clockLogo ( 158.85, 82.42 ) 40 "/assets/images/orient.svg"
+    Logo ( 158.85, 82.42 ) 40 "/assets/images/orient.svg" "Orient"
 
 
-patekPhilippe : Svg msg
+patekPhilippe : Logo
 patekPhilippe =
-    clockLogo ( 159.50522, 87.271477 ) 72 "/assets/images/Patek_Philippe_SA_logo.svg"
-
-
-clockLogo : ( Float, Float ) -> Float -> String -> Svg msg
-clockLogo ( aspectWidth, aspectHeight ) width url =
-    let
-        ratio =
-            aspectHeight / aspectWidth
-
-        height =
-            ratio * width
-
-        x =
-            (200 - width) / 2
-
-        y =
-            (100 - height) / goldenRatio
-    in
-    Svg.node "image"
-        [ Svg.Attributes.x <| String.fromFloat x
-        , Svg.Attributes.y <| String.fromFloat y
-        , Svg.Attributes.width <| String.fromFloat width
-        , Svg.Attributes.height <| String.fromFloat height
-        , Svg.Attributes.xlinkHref url
-        ]
-        []
-
-
-goldenRatio : Float
-goldenRatio =
-    (1 + sqrt 5) / 2
+    Logo ( 159.50522, 87.271477 ) 72 "/assets/images/Patek_Philippe_SA_logo.svg" "Patek Philippe"

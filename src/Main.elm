@@ -5,21 +5,28 @@ import Browser
 import Clock exposing (clock)
 import Html as H exposing (Html)
 import Html.Attributes as HA
-import Logo
+import Html.Events exposing (onClick, onInput)
+import Logo exposing (Logo)
+import LogoDict as Logos
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Task
 import Time
 
 
-type alias ClockSetting msg =
-    { logo : Svg msg
+type alias ClockSetting =
+    { logo : Logo
     , frequency : Int
     }
 
 
-clockSettings : List (ClockSetting msg)
-clockSettings =
+defaultClockSetting : ClockSetting
+defaultClockSetting =
+    ClockSetting Logo.nothing 1
+
+
+defaultClockSettings : List ClockSetting
+defaultClockSettings =
     [ ClockSetting Logo.citizen 1
     , ClockSetting Logo.zenith 2
     , ClockSetting Logo.tissot 4
@@ -66,7 +73,8 @@ main =
 
 
 type alias ClockState =
-    { time : Time.Posix
+    { setting : ClockSetting
+    , time : Time.Posix
     , isMoving : Bool
     }
 
@@ -74,21 +82,23 @@ type alias ClockState =
 type alias Model =
     { zone : Time.Zone
     , clockStates : Array ClockState
+    , newClock : ClockSetting
     }
 
 
 defaultClockState : ClockState
 defaultClockState =
-    ClockState (Time.millisToPosix 0) True
+    ClockState defaultClockSetting (Time.millisToPosix 0) True
 
 
 initialModel : Model
 initialModel =
     { zone = Time.utc
     , clockStates =
-        defaultClockState
-            |> List.repeat (List.length clockSettings)
+        defaultClockSettings
+            |> List.map (\setting -> { defaultClockState | setting = setting })
             |> Array.fromList
+    , newClock = defaultClockSetting
     }
 
 
@@ -97,7 +107,7 @@ init _ =
     ( initialModel
     , Cmd.batch <|
         Task.perform AdjustTimeZone Time.here
-            :: mapWithIndex (\i -> Task.perform (Tick i) Time.now) clockSettings
+            :: List.indexedMap (\i _ -> adjustTime i) defaultClockSettings
     )
 
 
@@ -109,6 +119,9 @@ type Msg
     = Tick Int Time.Posix
     | AdjustTimeZone Time.Zone
     | ToggleClock Int Bool
+    | InputFrequency String
+    | ChooseLogo String
+    | AddClock
 
 
 getClockState : Model -> Int -> ClockState
@@ -122,15 +135,36 @@ setClockState model index newState =
     { model | clockStates = Array.set index newState model.clockStates }
 
 
+fixFrequency : String -> Int
+fixFrequency input =
+    let
+        val =
+            input |> String.toInt |> Maybe.withDefault 1
+    in
+    if val > 1000 then
+        1000
+
+    else if val < 1 then
+        1
+
+    else
+        val
+
+
+adjustTime : Int -> Cmd Msg
+adjustTime index =
+    Task.perform (Tick index) Time.now
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Tick index newTime ->
             let
-                { isMoving } =
+                clockState =
                     getClockState model index
             in
-            ( setClockState model index (ClockState newTime isMoving)
+            ( setClockState model index { clockState | time = newTime }
             , Cmd.none
             )
 
@@ -141,25 +175,34 @@ update msg model =
 
         ToggleClock index moving ->
             let
-                { time } =
+                clockState =
                     getClockState model index
             in
-            ( setClockState model index (ClockState time moving), Cmd.none )
+            ( setClockState model index { clockState | isMoving = moving }, Cmd.none )
+
+        InputFrequency freq ->
+            ( { model | newClock = ClockSetting model.newClock.logo (fixFrequency freq) }, Cmd.none )
+
+        ChooseLogo key ->
+            ( { model | newClock = ClockSetting (Logos.get key) model.newClock.frequency }, Cmd.none )
+
+        AddClock ->
+            ( { model
+                | newClock = defaultClockSetting
+                , clockStates = Array.push { defaultClockState | setting = model.newClock } model.clockStates
+              }
+            , adjustTime (Array.length model.clockStates)
+            )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    clockSettings
-        |> List.map (.frequency >> toFloat >> (/) 1000)
+    model.clockStates
+        |> Array.toList
         |> List.indexedMap Tuple.pair
-        |> List.filter
-            (\( i, _ ) ->
-                let
-                    { isMoving } =
-                        getClockState model i
-                in
-                isMoving
-            )
+        |> List.filter (\( _, { isMoving } ) -> isMoving)
+        |> List.map (\( i, { setting } ) -> ( i, setting.frequency ))
+        |> List.map (\( i, f ) -> ( i, f |> toFloat |> (/) 1000 ))
         |> List.map (\( i, t ) -> Time.every t (Tick i))
         |> Sub.batch
 
@@ -170,26 +213,84 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    H.main_ [ HA.style "display" "flex", HA.style "user-select" "none", HA.style "flex-wrap" "wrap" ]
-        (mapWithIndex (\i -> renderClock i model) clockSettings)
+    H.main_ []
+        [ renderForm model
+        , renderClocks model
+        ]
 
 
-defaultClockSetting : ClockSetting msg
-defaultClockSetting =
-    ClockSetting Logo.nothing 1
+renderForm : Model -> Html Msg
+renderForm model =
+    H.section [ HA.style "display" "flex", HA.style "flex-direction" "row", HA.style "padding" "10px" ]
+        [ H.div []
+            [ H.label [ HA.for "logos" ] [ H.text "Choose Logo: " ]
+            , H.select [ HA.id "logos", onInput ChooseLogo ] <|
+                List.map (\name -> renderOption name (name == model.newClock.logo.name)) Logos.options
+            ]
+        , H.div []
+            [ H.label [ HA.for "frequency" ] [ H.text "Frequency: " ]
+            , H.input
+                [ HA.type_ "number"
+                , HA.id "frequency"
+                , HA.size 3
+                , HA.value (String.fromInt model.newClock.frequency)
+                , onInput InputFrequency
+                ]
+                []
+            ]
+        , H.div []
+            [ H.button [ HA.type_ "submit", onClick AddClock ] [ H.text "Add " ] ]
+        ]
 
 
-renderClock : Int -> Model -> Html Msg
-renderClock index model =
+renderOption : String -> Bool -> Html Msg
+renderOption name selected =
+    H.option [ HA.value name, HA.selected selected ] [ H.text name ]
+
+
+renderClocks : Model -> Html Msg
+renderClocks model =
+    model.clockStates
+        |> Array.toList
+        |> List.indexedMap
+            (\i state ->
+                renderClock state model.zone (ToggleClock i)
+            )
+        |> H.section [ HA.style "display" "flex", HA.style "user-select" "none", HA.style "flex-wrap" "wrap" ]
+
+
+renderClock : ClockState -> Time.Zone -> (Bool -> Msg) -> Html Msg
+renderClock { time, isMoving, setting } zone switcher =
     let
-        { time, isMoving } =
-            Array.get index model.clockStates
-                |> Maybe.withDefault defaultClockState
-
         { logo, frequency } =
-            clockSettings
-                |> Array.fromList
-                |> Array.get index
-                |> Maybe.withDefault defaultClockSetting
+            setting
     in
-    clock logo frequency model.zone time isMoving (ToggleClock index)
+    H.section
+        [ HA.style "padding" "10px"
+        , HA.style "display" "flex"
+        , HA.style "flex-direction" "column"
+        ]
+        [ clock logo frequency zone time isMoving
+        , H.aside
+            [ HA.style "display" "flex"
+            , HA.style "flex-direction" "column"
+            , HA.style "align-items" "center"
+            , HA.style "padding-top" "10px"
+            ]
+            [ H.a
+                [ onClick << switcher <| not isMoving
+                , HA.style "font-size" "8px"
+                , HA.style "font-family" "sans-serif"
+                , HA.style "cursor" "pointer"
+                ]
+                [ text
+                    << String.toUpper
+                  <|
+                    if isMoving then
+                        "Switch Off"
+
+                    else
+                        "Switch On"
+                ]
+            ]
+        ]

@@ -1,8 +1,7 @@
 module Clock exposing (clock)
 
-import Html as H exposing (Html)
-import Html.Attributes as HA
-import Html.Events exposing (onClick)
+import Html exposing (Html)
+import Logo exposing (Logo)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Time
@@ -198,8 +197,45 @@ drawMark n =
         []
 
 
-clock : Svg msg -> Int -> Time.Zone -> Time.Posix -> Bool -> (Bool -> msg) -> Html msg
-clock logo frequency zone time moving messenger =
+drawLogo : Logo -> Svg msg
+drawLogo { aspect, width, url } =
+    if 0 == width then
+        Svg.text ""
+
+    else
+        let
+            ( aspectWidth, aspectHeight ) =
+                aspect
+
+            ratio =
+                aspectHeight / aspectWidth
+
+            height =
+                ratio * width
+
+            x =
+                (200 - width) / 2
+
+            y =
+                (100 - height) / goldenRatio
+        in
+        Svg.node "image"
+            [ Svg.Attributes.x <| String.fromFloat x
+            , Svg.Attributes.y <| String.fromFloat y
+            , Svg.Attributes.width <| String.fromFloat width
+            , Svg.Attributes.height <| String.fromFloat height
+            , Svg.Attributes.xlinkHref url
+            ]
+            []
+
+
+goldenRatio : Float
+goldenRatio =
+    (1 + sqrt 5) / 2
+
+
+clock : Logo -> Int -> Time.Zone -> Time.Posix -> Bool -> Html msg
+clock logo frequency zone time moving =
     let
         millis =
             toMillis zone time
@@ -225,96 +261,68 @@ clock logo frequency zone time moving messenger =
         ds =
             (dc - (toFloat (floor dh) * mHour + toFloat (floor dm) * mMin)) / mSec
     in
-    H.section
-        [ HA.style "padding" "10px"
-        , HA.style "display" "flex"
-        , HA.style "flex-direction" "column"
+    svg
+        [ viewBox "0 0 200 200"
+        , width "200"
+        , height "200"
         ]
-        [ svg
-            [ viewBox "0 0 200 200"
-            , width "200"
-            , height "200"
-            ]
-            [ Svg.node "defs"
-                []
-                [ Svg.node "radialGradient"
-                    [ Svg.Attributes.id "gradient"
-                    , Svg.Attributes.cx "50%"
-                    , Svg.Attributes.cy "50%"
-                    , Svg.Attributes.r "50%"
-                    , Svg.Attributes.fx "50%"
-                    , Svg.Attributes.fy "50%"
+        [ Svg.node "defs"
+            []
+            [ Svg.node "radialGradient"
+                [ Svg.Attributes.id "gradient"
+                , Svg.Attributes.cx "50%"
+                , Svg.Attributes.cy "50%"
+                , Svg.Attributes.r "50%"
+                , Svg.Attributes.fx "50%"
+                , Svg.Attributes.fy "50%"
+                ]
+                [ Svg.node "stop"
+                    [ Svg.Attributes.offset "0%"
+                    , Svg.Attributes.style "stop-color:rgba(255, 255, 255, 0.15); stop-opacity:1"
                     ]
-                    [ Svg.node "stop"
-                        [ Svg.Attributes.offset "0%"
-                        , Svg.Attributes.style "stop-color:rgba(255, 255, 255, 0.15); stop-opacity:1"
-                        ]
-                        []
-                    , Svg.node "stop"
-                        [ Svg.Attributes.offset "100%"
-                        , Svg.Attributes.style "stop-color:rgba(255, 255, 255, 0.1); stop-opacity:0"
-                        ]
-                        []
+                    []
+                , Svg.node "stop"
+                    [ Svg.Attributes.offset "100%"
+                    , Svg.Attributes.style "stop-color:rgba(255, 255, 255, 0.1); stop-opacity:0"
                     ]
-                ]
-            , circle
-                [ cx "100"
-                , cy "100"
-                , r "99"
-                , fill <|
-                    if moving then
-                        "white"
-
-                    else
-                        "lightgray"
-                , stroke "gray"
-                ]
-                []
-            , g [] <| List.map drawMark <| steppedRange 0.25 0 60
-            , logo
-            , Svg.text_
-                [ x "100"
-                , y "150"
-                , fontSize "8"
-                , fontFamily "sans-serif"
-                , fill "gray"
-                , textAnchor "middle"
-                ]
-                [ Svg.text <| "【" ++ String.fromInt frequency ++ "】" ]
-
-            -- , drawHand 4 40 "#fff" (hour / 12)
-            -- , drawHand 4 60 "#efefef" (minute / 60)
-            -- , drawHand 2 85 "yellow" (second / 60)
-            -- , drawTriangularHandle 2 40 "#fff" (hour / 12)
-            -- , drawTriangularHandle 2 60 "#efefef" (minute / 60)
-            -- , drawTriangularHandle 1 85 "yellow" (second / 60)
-            , drawTrepozoidalHand ( 1.5, 3 ) 40 "#357ca3" (dh / 12)
-            , drawTrepozoidalHand ( 1, 3 ) 60 "gray" (dm / 60)
-            , drawTrepozoidalHand ( 1, 2 ) 85 "#eb4351" (ds / 60)
-            , circle [ cx "100", cy "100", r "4", fill "#eb4351" ] []
-            ]
-        , H.aside
-            [ HA.style "display" "flex"
-            , HA.style "flex-direction" "column"
-            , HA.style "align-items" "center"
-            , HA.style "padding-top" "10px"
-            ]
-            [ H.a
-                [ onClick (messenger (not moving))
-                , HA.style "font-size" "8px"
-                , HA.style "font-family" "sans-serif"
-                , HA.style "cursor" "pointer"
-                ]
-                [ text
-                    << String.toUpper
-                  <|
-                    if moving then
-                        "Switch Off"
-
-                    else
-                        "Switch On"
+                    []
                 ]
             ]
+        , circle
+            [ cx "100"
+            , cy "100"
+            , r "99"
+            , fill <|
+                if moving then
+                    "white"
+
+                else
+                    "lightgray"
+            , stroke "gray"
+            ]
+            []
+        , g [] <| List.map drawMark <| steppedRange 0.25 0 60
+        , drawLogo logo
+        , Svg.text_
+            [ x "100"
+            , y "150"
+            , fontSize "8"
+            , fontFamily "sans-serif"
+            , fill "gray"
+            , textAnchor "middle"
+            ]
+            [ Svg.text <| "【" ++ String.fromInt frequency ++ "】" ]
+
+        -- , drawHand 4 40 "#fff" (hour / 12)
+        -- , drawHand 4 60 "#efefef" (minute / 60)
+        -- , drawHand 2 85 "yellow" (second / 60)
+        -- , drawTriangularHandle 2 40 "#fff" (hour / 12)
+        -- , drawTriangularHandle 2 60 "#efefef" (minute / 60)
+        -- , drawTriangularHandle 1 85 "yellow" (second / 60)
+        , drawTrepozoidalHand ( 1.5, 3 ) 40 "#357ca3" (dh / 12)
+        , drawTrepozoidalHand ( 1, 3 ) 60 "gray" (dm / 60)
+        , drawTrepozoidalHand ( 1, 2 ) 85 "#eb4351" (ds / 60)
+        , circle [ cx "100", cy "100", r "4", fill "#eb4351" ] []
         ]
 
 
