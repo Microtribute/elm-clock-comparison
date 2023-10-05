@@ -83,13 +83,22 @@ type alias ClockState =
 type alias Model =
     { zone : Time.Zone
     , clockStates : Array ClockState
-    , newClock : ClockSetting
+    , form : ClockForm
     }
+
+
+type alias ClockForm =
+    { setting : ClockSetting, index : Maybe Int }
 
 
 defaultClockState : ClockState
 defaultClockState =
     ClockState defaultClockSetting (Time.millisToPosix 0) True
+
+
+defaultClockForm : ClockForm
+defaultClockForm =
+    ClockForm defaultClockSetting Nothing
 
 
 initialModel : Model
@@ -99,7 +108,7 @@ initialModel =
         defaultClockSettings
             |> List.map (\setting -> { defaultClockState | setting = setting })
             |> Array.fromList
-    , newClock = defaultClockSetting
+    , form = defaultClockForm
     }
 
 
@@ -124,6 +133,8 @@ type Msg
     | ChooseLogo String
     | AddClock
     | DeleteClock Int
+    | EditClock Int
+    | SaveClock Int
 
 
 getClockState : Model -> Int -> ClockState
@@ -183,21 +194,39 @@ update msg model =
             ( setClockState model index { clockState | isMoving = moving }, Cmd.none )
 
         InputFrequency freq ->
-            ( { model | newClock = ClockSetting model.newClock.logo (fixFrequency freq) }, Cmd.none )
+            let
+                formData =
+                    model.form
+            in
+            ( { model | form = { formData | setting = ClockSetting model.form.setting.logo (fixFrequency freq) } }, Cmd.none )
 
         ChooseLogo key ->
-            ( { model | newClock = ClockSetting (Logos.get key) model.newClock.frequency }, Cmd.none )
+            let
+                formData =
+                    model.form
+            in
+            ( { model | form = { formData | setting = ClockSetting (Logos.get key) model.form.setting.frequency } }, Cmd.none )
 
         AddClock ->
             ( { model
-                | newClock = defaultClockSetting
-                , clockStates = Array.push { defaultClockState | setting = model.newClock } model.clockStates
+                | form = defaultClockForm
+                , clockStates = Array.push { defaultClockState | setting = model.form.setting } model.clockStates
               }
             , adjustTime (Array.length model.clockStates)
             )
 
         DeleteClock index ->
             ( { model | clockStates = Array.removeAt index model.clockStates }, Cmd.none )
+
+        EditClock index ->
+            let
+                { setting } =
+                    getClockState model index
+            in
+            ( { model | form = ClockForm setting <| Just index }, Cmd.none )
+
+        SaveClock index ->
+            ( { model | form = defaultClockForm, clockStates = Array.update index (\state -> { state | setting = model.form.setting }) model.clockStates }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -226,11 +255,15 @@ view model =
 
 renderForm : Model -> Html Msg
 renderForm model =
+    let
+        indexBeingEdited =
+            Maybe.withDefault -1 model.form.index
+    in
     H.section [ HA.style "display" "flex", HA.style "flex-direction" "row", HA.style "padding" "10px" ]
         [ H.div []
             [ H.label [ HA.for "logos" ] [ H.text "Choose Logo: " ]
             , H.select [ HA.id "logos", onInput ChooseLogo ] <|
-                List.map (\name -> renderOption name (name == model.newClock.logo.name)) Logos.options
+                List.map (\name -> renderOption name (name == model.form.setting.logo.name)) Logos.options
             ]
         , H.div []
             [ H.label [ HA.for "frequency" ] [ H.text "Frequency: " ]
@@ -238,13 +271,29 @@ renderForm model =
                 [ HA.type_ "number"
                 , HA.id "frequency"
                 , HA.size 3
-                , HA.value (String.fromInt model.newClock.frequency)
+                , HA.value (String.fromInt model.form.setting.frequency)
                 , onInput InputFrequency
                 ]
                 []
             ]
         , H.div []
-            [ H.button [ HA.type_ "submit", onClick AddClock ] [ H.text "Add " ] ]
+            [ H.button
+                [ HA.type_ "submit"
+                , onClick <|
+                    if indexBeingEdited == -1 then
+                        AddClock
+
+                    else
+                        SaveClock indexBeingEdited
+                ]
+                [ H.text <|
+                    if indexBeingEdited < 0 then
+                        "Add"
+
+                    else
+                        "Save"
+                ]
+            ]
         ]
 
 
@@ -259,18 +308,18 @@ renderClocks model =
         |> Array.toList
         |> List.indexedMap
             (\i state ->
-                renderClock state model.zone { switcher = ToggleClock i, remover = DeleteClock i }
+                renderClock ( i, state ) model.zone
             )
         |> H.section [ HA.style "display" "flex", HA.style "user-select" "none", HA.style "flex-wrap" "wrap" ]
 
 
-renderClock : ClockState -> Time.Zone -> { switcher : Bool -> Msg, remover : Msg } -> Html Msg
-renderClock { time, isMoving, setting } zone { switcher, remover } =
+renderClock : ( Int, ClockState ) -> Time.Zone -> Html Msg
+renderClock ( index, { time, isMoving, setting } ) zone =
     let
         { logo, frequency } =
             setting
     in
-    H.section
+    H.div
         [ HA.style "padding" "10px"
         , HA.style "display" "flex"
         , HA.style "flex-direction" "column"
@@ -286,7 +335,7 @@ renderClock { time, isMoving, setting } zone { switcher, remover } =
             , HA.style "text-transform" "uppercase"
             ]
             [ H.a
-                [ onClick << switcher <| not isMoving
+                [ onClick << ToggleClock index <| not isMoving
                 , HA.style "cursor" "pointer"
                 ]
                 [ text <|
@@ -297,7 +346,13 @@ renderClock { time, isMoving, setting } zone { switcher, remover } =
                         "Resume"
                 ]
             , H.a
-                [ onClick remover
+                [ onClick <| EditClock index
+                , HA.style "cursor" "pointer"
+                , HA.style "color" "green"
+                ]
+                [ text "Update" ]
+            , H.a
+                [ onClick <| DeleteClock index
                 , HA.style "cursor" "pointer"
                 , HA.style "color" "red"
                 ]
