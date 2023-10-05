@@ -151,7 +151,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     clockSettings
         |> List.map (.frequency >> toFloat >> (/) 1000)
-        |> List.indexedMap (\i t -> ( i, t ))
+        |> List.indexedMap Tuple.pair
         |> List.filter
             (\( i, _ ) ->
                 let
