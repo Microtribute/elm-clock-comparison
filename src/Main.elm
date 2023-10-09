@@ -21,6 +21,36 @@ type alias ClockSetting =
     }
 
 
+type alias ClockState =
+    { setting : ClockSetting
+    , time : Time.Posix
+    , isMoving : Bool
+    }
+
+
+type alias Model =
+    { zone : Time.Zone
+    , clockStates : Array ClockState
+    , form : ClockForm
+    }
+
+
+type alias ClockForm =
+    { setting : ClockSetting, index : Maybe Int }
+
+
+type Msg
+    = Tick Int Time.Posix
+    | AdjustTimeZone Time.Zone
+    | ToggleClock Int Bool
+    | InputFrequency String
+    | ChooseLogo String
+    | AddClock
+    | DeleteClock Int
+    | EditClock Int
+    | SaveClock Int
+
+
 defaultClockSetting : ClockSetting
 defaultClockSetting =
     ClockSetting Logo.nothing 1
@@ -50,6 +80,16 @@ defaultClockSettings =
     ]
 
 
+defaultClockState : ClockState
+defaultClockState =
+    ClockState defaultClockSetting (Time.millisToPosix 0) True
+
+
+defaultClockForm : ClockForm
+defaultClockForm =
+    ClockForm defaultClockSetting Nothing
+
+
 mapWithIndex : (Int -> b) -> List a -> List b
 mapWithIndex f =
     List.indexedMap (\i _ -> f i)
@@ -71,34 +111,6 @@ main =
 
 
 -- MODEL
-
-
-type alias ClockState =
-    { setting : ClockSetting
-    , time : Time.Posix
-    , isMoving : Bool
-    }
-
-
-type alias Model =
-    { zone : Time.Zone
-    , clockStates : Array ClockState
-    , form : ClockForm
-    }
-
-
-type alias ClockForm =
-    { setting : ClockSetting, index : Maybe Int }
-
-
-defaultClockState : ClockState
-defaultClockState =
-    ClockState defaultClockSetting (Time.millisToPosix 0) True
-
-
-defaultClockForm : ClockForm
-defaultClockForm =
-    ClockForm defaultClockSetting Nothing
 
 
 initialModel : Model
@@ -123,18 +135,6 @@ init _ =
 
 
 -- UPDATE
-
-
-type Msg
-    = Tick Int Time.Posix
-    | AdjustTimeZone Time.Zone
-    | ToggleClock Int Bool
-    | InputFrequency String
-    | ChooseLogo String
-    | AddClock
-    | DeleteClock Int
-    | EditClock Int
-    | SaveClock Int
 
 
 fixFrequency : String -> Int
